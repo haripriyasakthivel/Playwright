@@ -3,11 +3,17 @@ import { Getstartedpage } from './pages/getstarted.page'
 import { Generateimagepage } from './pages/generateimage.page'
 import { Imagegeneratedpage } from './pages/imagegenerated.page'
 import { Sharegeneratedimagepage } from './pages/sharegeneratedimage.page'
+import { imageSize } from 'image-size';
 
 test.describe("Text to Image Generation Flow", () => {
 
-    test('Verify generating Ducati images from the given text prompt', async ({ page, promptvalue, personaldetails }) => {
-        test.setTimeout(60000) //setting timeout to max 1 minute for this particular test instead of updating the global timeout as the image generation will take around 1min time. 
+    test('Verify generating Ducati images from the given text prompt', async ({ page, promptvalue, personaldetails }, testInfo) => {
+
+        let timeout = 60000 //default timeout is 1min for this test
+        if (testInfo.project.name === 'chromium' || testInfo.project.name === 'firefox') {
+            timeout = 120000 //setting timeout to 2 minutes for chromium and firefox   
+        }
+        test.setTimeout(timeout) //setting timeout for this particular test instead of updating the global timeout as the image generation takes 1-3min time based on the browser
         //Initialise all the pages class
         const getstartedpage = new Getstartedpage(page)
         const generateimagepage = new Generateimagepage(page)
@@ -69,17 +75,21 @@ test.describe("Text to Image Generation Flow", () => {
         //Verify image is selected and download option is present
         await expect(page).toHaveURL(/\/create\/[a-f0-9-]{36}\/share\/[a-f0-9-]{36}$/)
         await expect(sharegeneratedimagepage.downloadBtn).toBeVisible()
-        //Click on download
+
+        // Start waiting for download before clicking
+        const downloadPromise = page.waitForEvent('download');
         await sharegeneratedimagepage.clickOnDownloadBtn()
-        //Download button is not functioning to validate the image resolution 
-        //Hence, Selecting the image element and checking its resolution
-        const resolution = await page.evaluate(() => {
-            const img = document.querySelector('img');
-            return img ? { width: img.naturalWidth, height: img.naturalHeight } : null;
-        });
-        console.log(`Webpage image resolution: ${resolution?.width} x ${resolution?.height}`);
-        expect(resolution?.width).toBe(2880)
-        expect(resolution?.height).toBe(1620)
+        const download = await downloadPromise;
+
+        // Wait for the download process to complete and save the downloaded file 
+        const filePath = '/Users/hari/Downloads' + download.suggestedFilename()
+        await download.saveAs(filePath);
+        const dimensions = imageSize(filePath);
+        console.log(`Downloaded image resolution: ${dimensions.width}x${dimensions.height}`);
+        //Verify the downloaded image dimensions
+        expect(dimensions.width).toBe(2056)
+        expect(dimensions.height).toBe(1368)
+
     })
 
 })

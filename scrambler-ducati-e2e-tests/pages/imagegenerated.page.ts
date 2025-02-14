@@ -61,7 +61,7 @@ export class Imagegeneratedpage {
 
     }
 
-    async enterEmail(email) {
+    async enterEmail(email: string) {
         await this.email.fill(email)
 
     }

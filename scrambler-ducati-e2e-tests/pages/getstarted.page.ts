@@ -18,7 +18,7 @@ export class Getstartedpage {
     }
 
     async closeCookiePopUp() {
-        if (await this.closeCookieBtn) {
+        if (this.closeCookieBtn) {
             await this.closeCookieBtn.click()
         }
     }
