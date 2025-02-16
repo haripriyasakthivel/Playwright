@@ -4,6 +4,7 @@ import { Generateimagepage } from './pages/generateimage.page'
 import { Imagegeneratedpage } from './pages/imagegenerated.page'
 import { Sharegeneratedimagepage } from './pages/sharegeneratedimage.page'
 import { imageSize } from 'image-size';
+import path from 'path'
 
 test.describe("Text to Image Generation Flow", () => {
 
@@ -82,13 +83,13 @@ test.describe("Text to Image Generation Flow", () => {
         const download = await downloadPromise;
 
         // Wait for the download process to complete and save the downloaded file 
-        const filePath = '/Users/hari/Downloads' + download.suggestedFilename()
+        const filePath = path.join('/Users/hari/Downloads', download.suggestedFilename())
         await download.saveAs(filePath);
         const dimensions = imageSize(filePath);
         console.log(`Downloaded image resolution: ${dimensions.width}x${dimensions.height}`);
         //Verify the downloaded image dimensions
-        expect(dimensions.width).toBe(2056)
-        expect(dimensions.height).toBe(1368)
+        await expect(dimensions.width).toBe(2056)
+        await expect(dimensions.height).toBe(1368)
 
     })
 
