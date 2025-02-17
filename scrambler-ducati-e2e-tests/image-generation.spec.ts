@@ -5,6 +5,7 @@ import { Imagegeneratedpage } from './pages/imagegenerated.page'
 import { Sharegeneratedimagepage } from './pages/sharegeneratedimage.page'
 import { imageSize } from 'image-size';
 import path from 'path'
+import os from 'os';
 
 test.describe("Text to Image Generation Flow", () => {
 
@@ -82,8 +83,9 @@ test.describe("Text to Image Generation Flow", () => {
         await sharegeneratedimagepage.clickOnDownloadBtn()
         const download = await downloadPromise;
 
-        // Wait for the download process to complete and save the downloaded file 
-        const filePath = path.join('/Users/hari/Downloads', download.suggestedFilename())
+        // Wait for the download process to complete and save the downloaded file
+        // os.homedir() is used as the path for accessing downloads need to be universal 
+        const filePath = path.join(os.homedir(), 'Downloads', download.suggestedFilename())
         await download.saveAs(filePath);
         const dimensions = imageSize(filePath);
         console.log(`Downloaded image resolution: ${dimensions.width}x${dimensions.height}`);
